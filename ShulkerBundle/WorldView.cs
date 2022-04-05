@@ -20,6 +20,8 @@ public partial class WorldView : UserControl
         WorldIcon.ImageLocation = Path.Combine(world.Folder, "world_icon.jpeg");
         WorldName.Text = File.ReadAllText(Path.Combine(world.Folder, "levelname.txt"));
         FolderName.Text = Path.GetFileName(world.Folder);
+        UnbundleButton.Visible = world.LocalBehaviorPacks.Count > 0 || world.LocalResourcePacks.Count > 0;
+        BundleButton.Visible = world.LocalBehaviorPacks.Count > 0 || world.LocalResourcePacks.Count > 0;
     }
 
     private void WorldView_Load(object sender, EventArgs e)

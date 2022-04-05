@@ -57,4 +57,15 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
+  <data name="UnbundleButton.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+    <value>
+        iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
+        YQUAAADZSURBVDhPzZC7DcJAEESPDqgAkUOEKAARkJJBbspABBRAATRACxRATA2UcujZO6e9DxJkrDT2
+        eu7m7crh/6pbTKNk1vdF6Lafx9Nq2esnmMLb2TiuJ6NMeALRWyQvDpn6CSI1IZjn3bA2gOdx0/cliG/5
+        Fh1K00uItpH45pz7AC2e/7z79dC/ERCBfJhB2ipoLaSLQBA9AW1AgLC8BMAQQFORBwlcAgMPbeC38KDX
+        41KF6RNARiusDYDTVwDKQ/wWiBAeZ14prMKQ/BQvPN2xWF0e1JJdswrhDSq+PVxYz+vNAAAAAElFTkSu
+        QmCC
+</value>
+  </data>
 </root>

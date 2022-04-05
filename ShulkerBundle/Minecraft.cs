@@ -9,6 +9,8 @@ public class Minecraft
 {
     public readonly string Folder;
     public readonly List<World> Worlds;
+    public readonly List<BehaviorPack> DevBehaviorPacks;
+    public readonly List<ResourcePack> DevResourcePacks;
     public Minecraft(string folder)
     {
         Folder = folder;
@@ -18,5 +20,7 @@ public class Minecraft
             if (File.Exists(Path.Combine(world, "level.dat")))
                 Worlds.Add(new World(world));
         }
+        DevBehaviorPacks = Pack.Load(Path.Combine(folder, "development_behavior_packs"), x => new BehaviorPack(x));
+        DevResourcePacks = Pack.Load(Path.Combine(folder, "development_resource_packs"), x => new ResourcePack(x));
     }
 }
