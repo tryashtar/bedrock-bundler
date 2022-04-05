@@ -1,4 +1,5 @@
 ﻿using GongSolutions.Wpf.DragDrop;
+using ShulkerBundle.Core;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -8,18 +9,31 @@ using System.Threading.Tasks;
 using System.Windows;
 
 namespace ShulkerBundle.MVVM.ViewModel;
-class MainViewModel : IDropTarget
+class MainViewModel : ObservableObject, IDropTarget
 {
-    public Minecraft Minecraft { get; private set; }
-    public World? SelectedWorld { get; set; }
+    private Minecraft minecraft;
+    public Minecraft Minecraft
+    {
+        get { return minecraft; }
+        set { minecraft = value; OnPropertyChanged(); }
+    }
+
+    private World selectedworld;
+    public World SelectedWorld
+    {
+        get { return selectedworld; }
+        set { selectedworld = value; OnPropertyChanged(); }
+    }
+
     public MainViewModel()
     {
+        Properties.Settings.Default.MinecraftFolder = Environment.ExpandEnvironmentVariables(Properties.Settings.Default.MinecraftFolder);
         Refresh();
     }
 
     public void Refresh()
     {
-        Minecraft = new(@"D:\Minecraft\Bedrock Storage\Launcher\installations\Latest\dev\packageData");
+        Minecraft = new(Properties.Settings.Default.MinecraftFolder);
     }
 
     void IDropTarget.DragOver(IDropInfo dropInfo)

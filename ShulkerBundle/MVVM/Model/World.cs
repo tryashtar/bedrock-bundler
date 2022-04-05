@@ -56,21 +56,68 @@ public class World : ObservableObject, IPackSource
     public ReferencedPack FindBehaviorPack(PackReference reference) => FindPack(reference, (x, y) => x.GetBehaviorPack(y));
     public ReferencedPack FindResourcePack(PackReference reference) => FindPack(reference, (x, y) => x.GetResourcePack(y));
 
-    public void Unbundle()
+    public enum UnbundleDecision
+    {
+        Overwrite,
+        Discard
+    }
+
+    public class UnbundleResponse
+    {
+        public bool Unfinished => RelevantPacks.Any();
+        public List<Pack> RelevantPacks = new();
+        private readonly List<(UnbundleDecision decision, Action code)> Continues = new();
+        public void ContinueWith(UnbundleDecision decision)
+        {
+            foreach (var c in Continues.Where(x => x.decision == decision))
+            {
+                c.code();
+            }
+        }
+        public void AddContinue(UnbundleDecision decision, Action code)
+        {
+            Continues.Add((decision, code));
+        }
+    }
+
+    public UnbundleResponse Unbundle()
     {
         UpdatePacks();
-        foreach (var pack in BehaviorPacks.Where(x => x.Status == ReferenceStatus.Local))
+        var response = new UnbundleResponse();
+        void handle_packs(IEnumerable<ReferencedPack> packlist, Func<PackReference, Pack> exist_check, string dev_folder)
         {
-            var dest = Path.Combine(Minecraft.Folder, "development_behavior_packs", pack.Pack.FolderName);
-            Directory.Move(pack.Pack.Folder, dest);
-            File.WriteAllText(Path.Combine(dest, "bundlename.txt"), pack.Pack.FolderName);
+            foreach (var pack in packlist.Where(x => x.Status == ReferenceStatus.Local))
+            {
+                var existing_pack = exist_check(pack.Reference);
+                if (existing_pack != null)
+                {
+                    response.RelevantPacks.Add(pack.Pack);
+                    response.AddContinue(UnbundleDecision.Overwrite, () =>
+                    {
+                        Directory.Delete(existing_pack.Folder, true);
+                        Directory.Move(pack.Pack.Folder, existing_pack.Folder);
+                        File.WriteAllText(Path.Combine(existing_pack.Folder, "bundlename.txt"), pack.Pack.FolderName);
+                    });
+                    response.AddContinue(UnbundleDecision.Discard, () =>
+                    {
+                        Directory.Delete(pack.Pack.Folder, true);
+                    });
+                }
+                else
+                {
+                    var dest = Path.Combine(Minecraft.Folder, dev_folder, pack.Pack.FolderName);
+                    while (Directory.Exists(dest))
+                    {
+                        dest += '_';
+                    }
+                    Directory.Move(pack.Pack.Folder, dest);
+                    File.WriteAllText(Path.Combine(dest, "bundlename.txt"), pack.Pack.FolderName);
+                }
+            }
         }
-        foreach (var pack in ResourcePacks.Where(x => x.Status == ReferenceStatus.Local))
-        {
-            var dest = Path.Combine(Minecraft.Folder, "development_resource_packs", pack.Pack.FolderName);
-            Directory.Move(pack.Pack.Folder, dest);
-            File.WriteAllText(Path.Combine(dest, "bundlename.txt"), pack.Pack.FolderName);
-        }
+        handle_packs(BehaviorPacks, Minecraft.GetBehaviorPack, "development_behavior_packs");
+        handle_packs(ResourcePacks, Minecraft.GetResourcePack, "development_resource_packs");
+        return response;
     }
 
     public void BundleTo(string destination)

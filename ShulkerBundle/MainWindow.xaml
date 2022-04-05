@@ -38,12 +38,18 @@
                 <RowDefinition Height="30"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
-            <TextBlock Text="Worlds"
-                       Margin="0,10,0,0"
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center">
+                <TextBlock Text="Worlds"
+                       Margin="0,10,10,0"
                        VerticalAlignment="Center"
-                       HorizontalAlignment="Center"
                        FontWeight="Medium"
                        FontSize="18"/>
+                <Button Content="Select Folder"
+                        Margin="0,10,10,0"
+                        VerticalAlignment="Center"
+                        Click="SelectFolder_Click"/>
+            </StackPanel>
             <ListView ItemsSource="{Binding Minecraft.Worlds}"
                       SelectedItem="{Binding SelectedWorld}"
                       Margin="0,10,0,0"

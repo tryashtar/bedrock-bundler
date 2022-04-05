@@ -1,4 +1,5 @@
 ﻿using Microsoft.Win32;
+using Ookii.Dialogs.Wpf;
 using ShulkerBundle.MVVM.ViewModel;
 using System;
 using System.Collections.Generic;
@@ -41,14 +42,26 @@ public partial class MainWindow : Window
     private void Unbundle_MouseDown(object sender, MouseButtonEventArgs e)
     {
         var model = (MainViewModel)this.DataContext;
-        model.SelectedWorld.Unbundle();
+        var response = model.SelectedWorld.Unbundle();
+        if (response.Unfinished)
+        {
+            var answer = MessageBox.Show($"These packs already exist:\n{String.Join('\n', response.RelevantPacks.Select(x => x.Name))}\n\nWould you like to overwrite your packs with these?", "Duplicate packs!", MessageBoxButton.YesNoCancel);
+            if (answer == MessageBoxResult.Yes)
+                response.ContinueWith(World.UnbundleDecision.Overwrite);
+            else if (answer == MessageBoxResult.No)
+                response.ContinueWith(World.UnbundleDecision.Discard);
+        }
     }
 
-    private void ClickWorld(object sender, MouseButtonEventArgs e)
+    private void SelectFolder_Click(object sender, RoutedEventArgs e)
     {
-        if (e.ClickCount==2)
+        var dialog = new VistaFolderBrowserDialog();
+        dialog.SelectedPath = Properties.Settings.Default.MinecraftFolder;
+        if (dialog.ShowDialog() == true)
         {
-
+            Properties.Settings.Default.MinecraftFolder = dialog.SelectedPath;
+            Properties.Settings.Default.Save();
+            ((MainViewModel)this.DataContext).Refresh();
         }
     }
 }
