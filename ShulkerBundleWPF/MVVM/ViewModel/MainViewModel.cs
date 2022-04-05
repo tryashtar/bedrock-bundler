@@ -1,18 +1,38 @@
-﻿using ShulkerBundle;
+﻿using GongSolutions.Wpf.DragDrop;
+using ShulkerBundle;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace ShulkerBundleWPF.MVVM.ViewModel;
-class MainViewModel
+class MainViewModel : IDropTarget
 {
     public Minecraft Minecraft { get; private set; }
     public World? SelectedWorld { get; set; }
     public MainViewModel()
     {
         Minecraft = new(@"D:\Minecraft\Bedrock Storage\Launcher\installations\Latest\dev\packageData");
+    }
+
+    void IDropTarget.DragOver(IDropInfo dropInfo)
+    {
+        var sourceItem = dropInfo.Data as ReferencedPack;
+        var targetItem = dropInfo.TargetItem as ReferencedPack;
+
+        if (sourceItem != null && targetItem != null)
+        {
+            dropInfo.DropTargetAdorner = DropTargetAdorners.Insert;
+            dropInfo.Effects = DragDropEffects.Move;
+        }
+    }
+
+    void IDropTarget.Drop(IDropInfo dropInfo)
+    {
+        var sourceItem = dropInfo.Data as ReferencedPack;
+        var targetItem = dropInfo.TargetItem as ReferencedPack;
     }
 }

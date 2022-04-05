@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -9,10 +10,23 @@ namespace ShulkerBundle;
 
 public class Pack
 {
+    public string Name { get; private set; }
+    public string Description { get; private set; }
+    public string PackIcon
+    {
+        get
+        {
+            string icon = Path.Combine(Folder, "pack_icon.png");
+            if (File.Exists(icon))
+                return icon;
+            return null;
+        }
+    }
+    public string FolderName => Path.GetFileName(Folder);
     public readonly string Folder;
     public readonly Version Version;
     public readonly Version MinEngineVersion;
-    public readonly Guid UUID;
+    public Guid UUID { get; private set; }
     public readonly List<PackReference> Dependencies;
     public readonly List<Module> Modules;
     public Pack(string folder)
@@ -22,32 +36,53 @@ public class Pack
         using var manifest = JsonDocument.Parse(file);
         var header = manifest.RootElement.GetProperty("header");
         Version = new Version(header.GetProperty("version"));
+        string name = header.GetProperty("name").GetString();
+        string desc = header.GetProperty("description").GetString();
+        Name = name;
+        Description = desc;
+        string lang = Path.Combine(folder, "texts", "en_US.lang");
+        if (File.Exists(lang))
+        {
+            foreach (var line in File.ReadLines(lang))
+            {
+                string trim = line.Trim();
+                if (trim.Length == 0 || trim.StartsWith('#'))
+                    continue;
+                int eq = trim.IndexOf('=');
+                if (eq == -1)
+                    continue;
+                if (trim[..eq] == name)
+                    Name = trim[(eq + 1)..];
+                if (trim[..eq] == desc)
+                    Description = trim[(eq + 1)..];
+            }
+        }
+        UUID = Guid.Parse(header.GetProperty("uuid").GetString());
         Dependencies = new();
         if (manifest.RootElement.TryGetProperty("dependencies", out var dep))
             Dependencies.AddRange(dep.EnumerateArray().Select(PackReference.ParseDependency));
         Modules = manifest.RootElement.GetProperty("modules").EnumerateArray().Select(x => new Module(x)).ToList();
     }
 
-    public static List<T> Load<T>(string folder, Func<string, T> creator) where T : Pack
+    public static IEnumerable<Pack> Load(string folder)
     {
-        var list = new List<T>();
         foreach (var pack in Directory.GetDirectories(folder))
         {
             if (File.Exists(Path.Combine(pack, "manifest.json")))
-                list.Add(creator(pack));
+                yield return new Pack(pack);
         }
-        return list;
     }
 }
 
-public class BehaviorPack : Pack
+public class ReferencedPack
 {
-    public BehaviorPack(string folder) : base(folder) { }
-}
-
-public class ResourcePack : Pack
-{
-    public ResourcePack(string folder) : base(folder) { }
+    public PackReference Reference { get; private set; }
+    public Pack Pack { get; private set; }
+    public ReferencedPack(PackReference reference, Pack pack)
+    {
+        Reference = reference;
+        Pack = pack;
+    }
 }
 
 public record PackReference

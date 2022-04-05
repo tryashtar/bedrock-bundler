@@ -4,29 +4,37 @@
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate>
-                    <StackPanel Orientation="Horizontal">
-                        <Ellipse Width="30" Height="30"
-                                 Margin="10,0,0,-5">
-                            <Ellipse.Fill>
-                                <ImageBrush ImageSource="{Binding ImageSource}"
-                                            RenderOptions.BitmapScalingMode="Fant"/>
-                            </Ellipse.Fill>
-                        </Ellipse>
-
-                        <StackPanel>
+                    <Grid Background="#EEEEEE"
+                          Margin="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="50"/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Image Source="{Binding Pack.PackIcon}"
+                               Grid.Column="0"
+                               Margin="5,0,5,0"/>
+                        <StackPanel Grid.Column="1"
+                                    Margin="5">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding UUID}"
-                                       Foreground="Black"
-                                       FontWeight="SemiBold"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,-5,0"/>
+                                <TextBlock Text="{Binding Pack.Name}"
+                                           Foreground="Black"
+                                           FontWeight="SemiBold"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding Path=Pack.FolderName, StringFormat={}  •  {0}}"
+                                           Foreground="Gray"
+                                           FontWeight="SemiBold"
+                                           VerticalAlignment="Center"/>
                             </StackPanel>
-                            <TextBlock Text="{Binding Message}"
-                                       Foreground="Black"
-                                       FontWeight="SemiBold"
-                                       VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding Pack.Description}"
+                                       Foreground="Gray"
+                                       VerticalAlignment="Center"
+                                       TextWrapping="Wrap"/>
+                            <TextBlock Text="{Binding Reference.UUID}"
+                                       Foreground="Gray"
+                                       VerticalAlignment="Center"
+                                       FontFamily="Consolas"/>
                         </StackPanel>
-                    </StackPanel>
+                    </Grid>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
