@@ -10,6 +10,7 @@ namespace ShulkerBundleWPF.MVVM.ViewModel;
 class MainViewModel
 {
     public Minecraft Minecraft { get; private set; }
+    public World? SelectedWorld { get; set; }
     public MainViewModel()
     {
         Minecraft = new(@"D:\Minecraft\Bedrock Storage\Launcher\installations\Latest\dev\packageData");

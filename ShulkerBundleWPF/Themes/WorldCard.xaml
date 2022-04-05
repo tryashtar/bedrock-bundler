@@ -15,10 +15,9 @@
                             CornerRadius="4"
                             Margin="2,2,2,2">
                         <StackPanel Orientation="Horizontal"
-                                    Margin="0,0,0,0">
+                                    Margin="0,0,30,0">
                             <Image Source="{Binding WorldIcon}"
-                                   Height="50"
-                                   Margin="0,0,0,0"/>
+                                   Height="50"/>
                             <StackPanel>
                                 <TextBlock Text="{Binding WorldName}"
                                            Foreground="Black"

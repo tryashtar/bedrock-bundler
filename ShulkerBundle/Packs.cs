@@ -52,8 +52,8 @@ public class ResourcePack : Pack
 
 public record PackReference
 {
-    public readonly Guid UUID;
-    public readonly Version Version;
+    public Guid UUID { get; private set; }
+    public Version Version { get; private set; }
 
     private PackReference(Guid uuid, Version version)
     {
