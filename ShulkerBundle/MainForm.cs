@@ -12,7 +12,14 @@ public partial class MainForm : Form
         var minecraft = new Minecraft(@"D:\Minecraft\Bedrock Storage\Launcher\installations\Latest\dev\packageData");
         foreach (var world in minecraft.Worlds)
         {
-            WorldPanel.Controls.Add(new WorldView(world));
+            var view = new WorldView(world);
+            WorldsPanel.Controls.Add(view);
+            view.Click += View_Click;
         }
+    }
+
+    private void View_Click(object? sender, EventArgs e)
+    {
+        MessageBox.Show(((WorldView)sender).World.WorldName);
     }
 }

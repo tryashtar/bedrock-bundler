@@ -28,23 +28,34 @@ partial class MainForm
     /// </summary>
     private void InitializeComponent()
     {
-            this.WorldPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.WorldsPanel = new System.Windows.Forms.FlowLayoutPanel();
+            this.SelectedPanel = new System.Windows.Forms.FlowLayoutPanel();
             this.SuspendLayout();
             // 
-            // WorldPanel
+            // WorldsPanel
             // 
-            this.WorldPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.WorldPanel.Location = new System.Drawing.Point(0, 0);
-            this.WorldPanel.Name = "WorldPanel";
-            this.WorldPanel.Size = new System.Drawing.Size(800, 450);
-            this.WorldPanel.TabIndex = 0;
+            this.WorldsPanel.AutoScroll = true;
+            this.WorldsPanel.Dock = System.Windows.Forms.DockStyle.Left;
+            this.WorldsPanel.Location = new System.Drawing.Point(0, 0);
+            this.WorldsPanel.Name = "WorldsPanel";
+            this.WorldsPanel.Size = new System.Drawing.Size(439, 450);
+            this.WorldsPanel.TabIndex = 0;
+            // 
+            // SelectedPanel
+            // 
+            this.SelectedPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.SelectedPanel.Location = new System.Drawing.Point(439, 0);
+            this.SelectedPanel.Name = "SelectedPanel";
+            this.SelectedPanel.Size = new System.Drawing.Size(391, 450);
+            this.SelectedPanel.TabIndex = 1;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
-            this.Controls.Add(this.WorldPanel);
+            this.ClientSize = new System.Drawing.Size(830, 450);
+            this.Controls.Add(this.SelectedPanel);
+            this.Controls.Add(this.WorldsPanel);
             this.Name = "MainForm";
             this.Text = "Shulker Bundle";
             this.Load += new System.EventHandler(this.MainForm_Load);
@@ -54,5 +65,6 @@ partial class MainForm
 
     #endregion
 
-    private FlowLayoutPanel WorldPanel;
+    private FlowLayoutPanel WorldsPanel;
+    private FlowLayoutPanel SelectedPanel;
 }

@@ -18,7 +18,7 @@ public partial class WorldView : UserControl
         InitializeComponent();
         World = world;
         WorldIcon.ImageLocation = Path.Combine(world.Folder, "world_icon.jpeg");
-        WorldName.Text = File.ReadAllText(Path.Combine(world.Folder, "levelname.txt"));
+        WorldName.Text = world.WorldName;
         FolderName.Text = Path.GetFileName(world.Folder);
         UnbundleButton.Visible = world.LocalBehaviorPacks.Count > 0 || world.LocalResourcePacks.Count > 0;
         BundleButton.Visible = world.LocalBehaviorPacks.Count > 0 || world.LocalResourcePacks.Count > 0;
