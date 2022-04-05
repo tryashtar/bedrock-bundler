@@ -14,6 +14,11 @@ class MainViewModel : IDropTarget
     public World? SelectedWorld { get; set; }
     public MainViewModel()
     {
+        Refresh();
+    }
+
+    public void Refresh()
+    {
         Minecraft = new(@"D:\Minecraft\Bedrock Storage\Launcher\installations\Latest\dev\packageData");
     }
 

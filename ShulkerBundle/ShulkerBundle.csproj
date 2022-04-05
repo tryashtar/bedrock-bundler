@@ -8,11 +8,28 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Icons\bundle.png" />
+    <None Remove="Icons\unbundle.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Icons\bundle.png" />
+    <Resource Include="Icons\unbundle.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="MVVM\View\" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="gong-wpf-dragdrop" Version="3.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Themes\Icons.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
 
 </Project>

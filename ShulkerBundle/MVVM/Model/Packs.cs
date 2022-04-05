@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
 namespace ShulkerBundle;
@@ -24,6 +25,7 @@ public class Pack
         }
     }
     public string FolderName => Path.GetFileName(Folder);
+    public string BundleName { get; private set; }
     public readonly string Folder;
     public readonly Version Version;
     public readonly Version MinEngineVersion;
@@ -58,6 +60,11 @@ public class Pack
                     Description = trim[(eq + 1)..];
             }
         }
+        var bn = Path.Combine(Folder, "bundlename.txt");
+        if (File.Exists(bn))
+            BundleName = File.ReadAllText(bn);
+        else
+            BundleName = FolderName;
         UUID = Guid.Parse(header.GetProperty("uuid").GetString());
         Dependencies = new();
         if (manifest.RootElement.TryGetProperty("dependencies", out var dep))
@@ -77,14 +84,23 @@ public class Pack
     }
 }
 
+public enum ReferenceStatus
+{
+    Dev,
+    Local,
+    Missing
+}
+
 public class ReferencedPack
 {
     public PackReference Reference { get; private set; }
-    public Pack Pack { get; private set; }
-    public ReferencedPack(PackReference reference, Pack pack)
+    public Pack? Pack { get; private set; }
+    public ReferenceStatus Status { get; private set; }
+    public ReferencedPack(PackReference reference, Pack? pack, ReferenceStatus status)
     {
         Reference = reference;
         Pack = pack;
+        Status = status;
     }
 }
 
@@ -97,6 +113,24 @@ public record PackReference
     {
         UUID = uuid;
         Version = version;
+    }
+
+    public JsonObject ToJsonDependency()
+    {
+        return new JsonObject
+        {
+            ["uuid"] = UUID,
+            ["version"] = Version.ToJson()
+        };
+    }
+
+    public JsonObject ToJsonReference()
+    {
+        return new JsonObject
+        {
+            ["pack_id"] = UUID,
+            ["version"] = Version.ToJson()
+        };
     }
 
     public static PackReference ParseDependency(JsonElement json)
@@ -139,5 +173,9 @@ public record Version
         Major = json[0].GetInt32();
         Minor = json[1].GetInt32();
         Patch = json[2].GetInt32();
+    }
+    public JsonArray ToJson()
+    {
+        return new JsonArray(Major, Minor, Patch);
     }
 }
