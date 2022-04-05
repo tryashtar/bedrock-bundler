@@ -8,12 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="MVVM\Model\" />
     <Folder Include="MVVM\View\" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ShulkerBundle\ShulkerBundle.csproj" />
+    <PackageReference Include="gong-wpf-dragdrop" Version="3.1.1" />
   </ItemGroup>
 
 </Project>

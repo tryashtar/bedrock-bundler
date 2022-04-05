@@ -1,13 +1,15 @@
-﻿using System;
+﻿using ShulkerBundleWPF.Core;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace ShulkerBundle;
-public class World : IPackSource
+namespace ShulkerBundleWPF;
+public class World : ObservableObject, IPackSource
 {
     public readonly Minecraft Minecraft;
     public string WorldName { get; private set; }

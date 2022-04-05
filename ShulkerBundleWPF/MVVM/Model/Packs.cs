@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace ShulkerBundle;
+namespace ShulkerBundleWPF;
 
 public class Pack
 {
@@ -64,6 +65,8 @@ public class Pack
         Modules = manifest.RootElement.GetProperty("modules").EnumerateArray().Select(x => new Module(x)).ToList();
     }
 
+    public PackReference GetReference() => new PackReference(UUID, Version);
+
     public static IEnumerable<Pack> Load(string folder)
     {
         foreach (var pack in Directory.GetDirectories(folder))
@@ -90,7 +93,7 @@ public record PackReference
     public Guid UUID { get; private set; }
     public Version Version { get; private set; }
 
-    private PackReference(Guid uuid, Version version)
+    public PackReference(Guid uuid, Version version)
     {
         UUID = uuid;
         Version = version;

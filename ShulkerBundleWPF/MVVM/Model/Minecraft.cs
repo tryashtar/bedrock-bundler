@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ShulkerBundle;
+namespace ShulkerBundleWPF;
 public class Minecraft : IPackSource
 {
     public readonly string Folder;
