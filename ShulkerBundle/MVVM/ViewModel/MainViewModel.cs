@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace ShulkerBundleWPF.MVVM.ViewModel;
+namespace ShulkerBundle.MVVM.ViewModel;
 class MainViewModel : IDropTarget
 {
     public Minecraft Minecraft { get; private set; }

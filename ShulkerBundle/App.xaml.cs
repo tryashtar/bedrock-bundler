@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 
-namespace ShulkerBundleWPF;
+namespace ShulkerBundle;
 /// <summary>
 /// Interaction logic for App.xaml
 /// </summary>

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ShulkerBundleWPF;
+namespace ShulkerBundle;
 public class Minecraft : IPackSource
 {
     public readonly string Folder;

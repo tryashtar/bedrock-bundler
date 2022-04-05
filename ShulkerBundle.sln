@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShulkerBundleWPF", "ShulkerBundleWPF\ShulkerBundleWPF.csproj", "{C8ED7B3E-658D-48F3-ACA1-07B2C0225EBC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ShulkerBundle", "ShulkerBundle\ShulkerBundle.csproj", "{C8ED7B3E-658D-48F3-ACA1-07B2C0225EBC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

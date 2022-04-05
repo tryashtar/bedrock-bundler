@@ -7,7 +7,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace ShulkerBundleWPF;
+namespace ShulkerBundle;
 
 public class Pack
 {

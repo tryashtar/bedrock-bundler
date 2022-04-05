@@ -1,4 +1,4 @@
-﻿using ShulkerBundleWPF.Core;
+﻿using ShulkerBundle.Core;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -8,7 +8,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace ShulkerBundleWPF;
+namespace ShulkerBundle;
 public class World : ObservableObject, IPackSource
 {
     public readonly Minecraft Minecraft;
