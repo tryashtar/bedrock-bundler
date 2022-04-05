@@ -38,12 +38,5 @@ class MainViewModel : IDropTarget
     {
         var sourceItem = dropInfo.Data as ReferencedPack;
         var targetItem = dropInfo.TargetItem as ReferencedPack;
-        var reference = sourceItem.Reference;
-        int index = SelectedWorld.ReferencedResourcePacks.IndexOf(reference);
-        SelectedWorld.ReferencedResourcePacks.RemoveAt(index);
-        int destination = dropInfo.InsertIndex;
-        if (destination > index)
-            destination--;
-        SelectedWorld.ReferencedResourcePacks.Insert(destination, reference);
     }
 }

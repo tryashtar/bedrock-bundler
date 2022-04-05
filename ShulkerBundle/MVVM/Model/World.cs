@@ -17,6 +17,7 @@ public class World : ObservableObject, IPackSource
     public string WorldName { get; private set; }
     public string WorldIcon => Path.Combine(Folder, "world_icon.jpeg");
     public string FolderName => Path.GetFileName(Folder);
+    public bool CanUnbundle => BehaviorPacks.Concat(ResourcePacks).Any(x => x.Status == ReferenceStatus.Local);
     public readonly string Folder;
     public ObservableCollection<Pack> LocalBehaviorPacks { get; private set; }
     public ObservableCollection<Pack> LocalResourcePacks { get; private set; }
@@ -55,6 +56,23 @@ public class World : ObservableObject, IPackSource
     public ReferencedPack FindBehaviorPack(PackReference reference) => FindPack(reference, (x, y) => x.GetBehaviorPack(y));
     public ReferencedPack FindResourcePack(PackReference reference) => FindPack(reference, (x, y) => x.GetResourcePack(y));
 
+    public void Unbundle()
+    {
+        UpdatePacks();
+        foreach (var pack in BehaviorPacks.Where(x => x.Status == ReferenceStatus.Local))
+        {
+            var dest = Path.Combine(Minecraft.Folder, "development_behavior_packs", pack.Pack.FolderName);
+            Directory.Move(pack.Pack.Folder, dest);
+            File.WriteAllText(Path.Combine(dest, "bundlename.txt"), pack.Pack.FolderName);
+        }
+        foreach (var pack in ResourcePacks.Where(x => x.Status == ReferenceStatus.Local))
+        {
+            var dest = Path.Combine(Minecraft.Folder, "development_resource_packs", pack.Pack.FolderName);
+            Directory.Move(pack.Pack.Folder, dest);
+            File.WriteAllText(Path.Combine(dest, "bundlename.txt"), pack.Pack.FolderName);
+        }
+    }
+
     public void BundleTo(string destination)
     {
         UpdatePacks();
@@ -64,20 +82,22 @@ public class World : ObservableObject, IPackSource
         using var zip = ZipFile.Open(destination, ZipArchiveMode.Update);
         foreach (var pack in BehaviorPacks.Where(x => x.Status == ReferenceStatus.Dev))
         {
-            ZipFolder(zip, pack.Pack.Folder, $"behavior_packs/{pack.Pack.BundleName}");
+            ZipPack(zip, pack.Pack, $"behavior_packs/{pack.Pack.BundleName}");
         }
         foreach (var pack in ResourcePacks.Where(x => x.Status == ReferenceStatus.Dev))
         {
-            ZipFolder(zip, pack.Pack.Folder, $"resource_packs/{pack.Pack.BundleName}");
+            ZipPack(zip, pack.Pack, $"resource_packs/{pack.Pack.BundleName}");
         }
     }
 
-    private void ZipFolder(ZipArchive zip, string directory, string entry)
+    private void ZipPack(ZipArchive zip, Pack pack, string entry)
     {
-        foreach (var file in Directory.EnumerateFiles(directory, "*", SearchOption.AllDirectories))
+        foreach (var file in Directory.EnumerateFiles(pack.Folder, "*", SearchOption.AllDirectories))
         {
-            string relative_path = Path.Combine(entry, file.Replace(directory, "").TrimStart('\\'));
-            zip.CreateEntryFromFile(file, relative_path);
+            string relative_path = file.Replace(pack.Folder, "").TrimStart('\\');
+            if (relative_path == "bundlename.txt")
+                continue;
+            zip.CreateEntryFromFile(file, Path.Combine(entry, relative_path));
         }
     }
 
@@ -86,6 +106,7 @@ public class World : ObservableObject, IPackSource
 
     private void UpdatePacks()
     {
+        OnPropertyChanged(nameof(CanUnbundle));
         OnPropertyChanged(nameof(BehaviorPacks));
         OnPropertyChanged(nameof(ResourcePacks));
         var indented = new JsonSerializerOptions() { WriteIndented = true };

@@ -16,6 +16,14 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
+        <Style x:Key = "HideBundler" TargetType="FrameworkElement">
+            <Setter Property = "Visibility" Value = "Visible" />
+            <Style.Triggers>
+                <DataTrigger Binding = "{Binding SelectedWorld.CanUnbundle}" Value="False">
+                    <Setter Property = "Visibility" Value = "Collapsed" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
     </Window.Resources>
     <Window.DataContext>
         <viewmodel:MainViewModel/>
@@ -69,6 +77,7 @@
                                    Source="{StaticResource Bundle}"
                                    MouseDown="Bundle_MouseDown"/>
                             <Image Width="32" Height="32"
+                                   Style="{StaticResource HideBundler}"
                                    HorizontalAlignment="Left"
                                    RenderOptions.BitmapScalingMode="NearestNeighbor"
                                    Margin="5,0,5,0"

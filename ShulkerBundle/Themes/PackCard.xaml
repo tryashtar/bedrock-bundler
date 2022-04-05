@@ -1,5 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:converters="clr-namespace:ShulkerBundle.Converters"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <converters:ImageConverter x:Key="ImageConverter"/>
     <Style x:Key = "PackColor" TargetType = "Grid">
         <Setter Property = "Background" Value = "#EEEEEE" />
         <Style.Triggers>
@@ -32,7 +34,7 @@
                         <Border BorderThickness="1"
                                 Style="{StaticResource HideMissing}"
                                 BorderBrush="Black">
-                        <Image Source="{Binding Pack.PackIcon, TargetNullValue={x:Null}}"
+                        <Image Source="{Binding Path=Pack.PackIcon, Converter={StaticResource ImageConverter}}"
                                Grid.Column="0"
                                Stretch="Fill"/>
                         </Border>

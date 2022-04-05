@@ -41,5 +41,14 @@ public partial class MainWindow : Window
     private void Unbundle_MouseDown(object sender, MouseButtonEventArgs e)
     {
         var model = (MainViewModel)this.DataContext;
+        model.SelectedWorld.Unbundle();
+    }
+
+    private void ClickWorld(object sender, MouseButtonEventArgs e)
+    {
+        if (e.ClickCount==2)
+        {
+
+        }
     }
 }
