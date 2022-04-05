@@ -8,9 +8,9 @@ namespace ShulkerBundle;
 public class Minecraft
 {
     public readonly string Folder;
-    public readonly List<World> Worlds;
-    public readonly List<BehaviorPack> DevBehaviorPacks;
-    public readonly List<ResourcePack> DevResourcePacks;
+    public List<World> Worlds { get; private set; }
+    public List<BehaviorPack> DevBehaviorPacks { get; private set; }
+    public List<ResourcePack> DevResourcePacks { get; private set; }
     public Minecraft(string folder)
     {
         Folder = folder;

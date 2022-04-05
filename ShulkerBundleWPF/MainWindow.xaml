@@ -1,0 +1,34 @@
+﻿<Window x:Class="ShulkerBundleWPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ShulkerBundleWPF" xmlns:viewmodel="clr-namespace:ShulkerBundleWPF.MVVM.ViewModel"
+        mc:Ignorable="d"
+        Title="Shulker Bundle" Height="650" Width="1200">
+    <Window.DataContext>
+        <viewmodel:MainViewModel/>
+    </Window.DataContext>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="300"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="30"/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <TextBlock Text="Worlds"
+                       VerticalAlignment="Center"
+                       FontWeight="Medium"
+                       Margin="4,0,0,0"
+                       FontSize="18"/>
+            <ListView ItemsSource="{Binding Minecraft.Worlds}"
+                      Background="Transparent"
+                      BorderThickness="0"
+                      Grid.Row="1"
+                      ItemContainerStyle="{StaticResource WorldCard}"/>
+        </Grid>
+    </Grid>
+</Window>

@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 namespace ShulkerBundle;
 public class World
 {
-    public readonly string WorldName;
+    public string WorldName { get; private set; }
+    public string WorldIcon => Path.Combine(Folder, "world_icon.jpeg");
+    public string FolderName => Path.GetFileName(Folder);
     public readonly string Folder;
     public readonly List<BehaviorPack> LocalBehaviorPacks;
     public readonly List<ResourcePack> LocalResourcePacks;
