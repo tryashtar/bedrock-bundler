@@ -17,14 +17,12 @@ public class World : ObservableObject, IPackSource
     public string WorldName { get; private set; }
     public string WorldIcon => Path.Combine(Folder, "world_icon.jpeg");
     public string FolderName => Path.GetFileName(Folder);
-    public bool CanUnbundle => BehaviorPacks.Concat(ResourcePacks).Any(x => x.Status == ReferenceStatus.Local);
     public readonly string Folder;
     public ObservableCollection<Pack> LocalBehaviorPacks { get; private set; }
     public ObservableCollection<Pack> LocalResourcePacks { get; private set; }
-    public ObservableCollection<PackReference> ReferencedBehaviorPacks { get; private set; }
-    public ObservableCollection<PackReference> ReferencedResourcePacks { get; private set; }
-    public IEnumerable<ReferencedPack> BehaviorPacks => ReferencedBehaviorPacks.Select(FindBehaviorPack);
-    public IEnumerable<ReferencedPack> ResourcePacks => ReferencedResourcePacks.Select(FindResourcePack);
+    public ObservableCollection<PackReference> ActiveBehaviorPacks { get; private set; }
+    public ObservableCollection<PackReference> ActiveResourcePacks { get; private set; }
+
     public World(Minecraft mc, string folder)
     {
         Minecraft = mc;
@@ -34,12 +32,12 @@ public class World : ObservableObject, IPackSource
         LocalResourcePacks = new(Pack.Load(Path.Combine(folder, "resource_packs")));
         using var bpf = File.OpenRead(Path.Combine(folder, "world_behavior_packs.json"));
         using var bpm = JsonDocument.Parse(bpf);
-        ReferencedBehaviorPacks = new(bpm.RootElement.EnumerateArray().Select(PackReference.ParseReference));
+        ActiveBehaviorPacks = new(bpm.RootElement.EnumerateArray().Select(PackReference.ParseReference));
         using var rpf = File.OpenRead(Path.Combine(folder, "world_resource_packs.json"));
         using var rpm = JsonDocument.Parse(rpf);
-        ReferencedResourcePacks = new(rpm.RootElement.EnumerateArray().Select(PackReference.ParseReference));
-        ReferencedBehaviorPacks.CollectionChanged += (s, e) => UpdatePacks();
-        ReferencedResourcePacks.CollectionChanged += (s, e) => UpdatePacks();
+        ActiveResourcePacks = new(rpm.RootElement.EnumerateArray().Select(PackReference.ParseReference));
+        ActiveBehaviorPacks.CollectionChanged += (s, e) => UpdatePacks();
+        ActiveResourcePacks.CollectionChanged += (s, e) => UpdatePacks();
     }
 
     private ReferencedPack FindPack(PackReference reference, Func<IPackSource, PackReference, Pack?> getter)
@@ -115,8 +113,8 @@ public class World : ObservableObject, IPackSource
                 }
             }
         }
-        handle_packs(BehaviorPacks, Minecraft.GetBehaviorPack, "development_behavior_packs");
-        handle_packs(ResourcePacks, Minecraft.GetResourcePack, "development_resource_packs");
+        handle_packs(ActiveBehaviorPacks.Select(FindBehaviorPack), Minecraft.GetBehaviorPack, "development_behavior_packs");
+        handle_packs(ActiveResourcePacks.Select(FindResourcePack), Minecraft.GetResourcePack, "development_resource_packs");
         return response;
     }
 
@@ -127,11 +125,11 @@ public class World : ObservableObject, IPackSource
             File.Delete(destination);
         ZipFile.CreateFromDirectory(this.Folder, destination);
         using var zip = ZipFile.Open(destination, ZipArchiveMode.Update);
-        foreach (var pack in BehaviorPacks.Where(x => x.Status == ReferenceStatus.Dev))
+        foreach (var pack in ActiveBehaviorPacks.Select(FindBehaviorPack).Where(x => x.Status == ReferenceStatus.Dev))
         {
             ZipPack(zip, pack.Pack, $"behavior_packs/{pack.Pack.BundleName}");
         }
-        foreach (var pack in ResourcePacks.Where(x => x.Status == ReferenceStatus.Dev))
+        foreach (var pack in ActiveResourcePacks.Select(FindResourcePack).Where(x => x.Status == ReferenceStatus.Dev))
         {
             ZipPack(zip, pack.Pack, $"resource_packs/{pack.Pack.BundleName}");
         }
@@ -153,11 +151,10 @@ public class World : ObservableObject, IPackSource
 
     private void UpdatePacks()
     {
-        OnPropertyChanged(nameof(CanUnbundle));
-        OnPropertyChanged(nameof(BehaviorPacks));
-        OnPropertyChanged(nameof(ResourcePacks));
+        OnPropertyChanged(nameof(ActiveBehaviorPacks));
+        OnPropertyChanged(nameof(ActiveResourcePacks));
         var indented = new JsonSerializerOptions() { WriteIndented = true };
-        File.WriteAllText(Path.Combine(Folder, "world_behavior_packs.json"), new JsonArray(ReferencedBehaviorPacks.Select(x => x.ToJsonReference()).ToArray()).ToJsonString(indented));
-        File.WriteAllText(Path.Combine(Folder, "world_resource_packs.json"), new JsonArray(ReferencedResourcePacks.Select(x => x.ToJsonReference()).ToArray()).ToJsonString(indented));
+        File.WriteAllText(Path.Combine(Folder, "world_behavior_packs.json"), new JsonArray(ActiveBehaviorPacks.Select(x => x.ToJsonReference()).ToArray()).ToJsonString(indented));
+        File.WriteAllText(Path.Combine(Folder, "world_resource_packs.json"), new JsonArray(ActiveResourcePacks.Select(x => x.ToJsonReference()).ToArray()).ToJsonString(indented));
     }
 }

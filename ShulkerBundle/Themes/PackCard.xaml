@@ -36,7 +36,7 @@
                                 BorderBrush="Black">
                         <Image Source="{Binding Path=Pack.PackIcon, Converter={StaticResource ImageConverter}}"
                                Grid.Column="0"
-                               Stretch="Fill"/>
+                               Stretch="Uniform"/>
                         </Border>
                         <StackPanel Grid.Column="1"
                                     Margin="5">

@@ -17,13 +17,13 @@ public class Minecraft : IPackSource
     {
         Folder = folder;
         Worlds = new();
+        DevBehaviorPacks = new(Pack.Load(Path.Combine(folder, "development_behavior_packs")));
+        DevResourcePacks = new(Pack.Load(Path.Combine(folder, "development_resource_packs")));
         foreach (var world in Directory.GetDirectories(Path.Combine(folder, "minecraftWorlds")))
         {
             if (File.Exists(Path.Combine(world, "level.dat")))
                 Worlds.Add(new World(this, world));
         }
-        DevBehaviorPacks = new(Pack.Load(Path.Combine(folder, "development_behavior_packs")));
-        DevResourcePacks = new(Pack.Load(Path.Combine(folder, "development_resource_packs")));
     }
 
     public Pack? GetBehaviorPack(PackReference reference) => IPackSource.Find(DevBehaviorPacks, reference);
@@ -38,7 +38,7 @@ public interface IPackSource
     {
         foreach (var item in source)
         {
-            if (item.UUID == reference.UUID && item.Version == reference.Version)
+            if (item.UUID == reference.UUID)
                 return item;
         }
         return null;

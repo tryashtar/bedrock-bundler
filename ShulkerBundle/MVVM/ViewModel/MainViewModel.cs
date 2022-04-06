@@ -38,10 +38,8 @@ class MainViewModel : ObservableObject, IDropTarget
 
     void IDropTarget.DragOver(IDropInfo dropInfo)
     {
-        var sourceItem = dropInfo.Data as ReferencedPack;
-        var targetItem = dropInfo.TargetItem as ReferencedPack;
-
-        if (sourceItem != null && targetItem != null)
+        var moving = dropInfo.Data as ReferencedPack;
+        if (moving != null)
         {
             dropInfo.DropTargetAdorner = DropTargetAdorners.Insert;
             dropInfo.Effects = DragDropEffects.Move;
@@ -50,7 +48,6 @@ class MainViewModel : ObservableObject, IDropTarget
 
     void IDropTarget.Drop(IDropInfo dropInfo)
     {
-        var sourceItem = dropInfo.Data as ReferencedPack;
-        var targetItem = dropInfo.TargetItem as ReferencedPack;
+        var moving = dropInfo.Data as ReferencedPack;
     }
 }

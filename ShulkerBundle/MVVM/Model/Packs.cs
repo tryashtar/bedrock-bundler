@@ -31,7 +31,6 @@ public class Pack
     public readonly Version MinEngineVersion;
     public Guid UUID { get; private set; }
     public readonly List<PackReference> Dependencies;
-    public readonly List<Module> Modules;
     public Pack(string folder)
     {
         Folder = folder;
@@ -69,7 +68,6 @@ public class Pack
         Dependencies = new();
         if (manifest.RootElement.TryGetProperty("dependencies", out var dep))
             Dependencies.AddRange(dep.EnumerateArray().Select(PackReference.ParseDependency));
-        Modules = manifest.RootElement.GetProperty("modules").EnumerateArray().Select(x => new Module(x)).ToList();
     }
 
     public PackReference GetReference() => new PackReference(UUID, Version);
@@ -148,18 +146,10 @@ public record PackReference
             new Version(json.GetProperty("version"))
         );
     }
-}
 
-public record Module
-{
-    public readonly string Type;
-    public readonly Guid UUID;
-    public readonly Version Version;
-    public Module(JsonElement json)
+    public override int GetHashCode()
     {
-        Type = json.GetProperty("type").GetString();
-        UUID = Guid.Parse(json.GetProperty("uuid").GetString());
-        Version = new Version(json.GetProperty("version"));
+        return UUID.GetHashCode();
     }
 }
 
