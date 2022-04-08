@@ -1,5 +1,7 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:converters="clr-namespace:ShulkerBundle.Converters"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <converters:ImageConverter x:Key="ImageConverter"/>
     <Style TargetType="ListViewItem" x:Key="WorldCard">
         <Style.Triggers>
             <Trigger Property="IsSelected" Value="True">
@@ -16,7 +18,7 @@
                             Margin="2,2,2,2">
                         <StackPanel Orientation="Horizontal"
                                     Margin="0,0,30,0">
-                            <Image Source="{Binding WorldIcon}"
+                            <Image Source="{Binding Path=WorldIcon, Converter={StaticResource ImageConverter}}"
                                    Height="50"/>
                             <StackPanel>
                                 <TextBlock Text="{Binding WorldName}"

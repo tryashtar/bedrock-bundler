@@ -151,8 +151,6 @@ public class World : ObservableObject, IPackSource
 
     private void UpdatePacks()
     {
-        OnPropertyChanged(nameof(ActiveBehaviorPacks));
-        OnPropertyChanged(nameof(ActiveResourcePacks));
         var indented = new JsonSerializerOptions() { WriteIndented = true };
         File.WriteAllText(Path.Combine(Folder, "world_behavior_packs.json"), new JsonArray(ActiveBehaviorPacks.Select(x => x.ToJsonReference()).ToArray()).ToJsonString(indented));
         File.WriteAllText(Path.Combine(Folder, "world_resource_packs.json"), new JsonArray(ActiveResourcePacks.Select(x => x.ToJsonReference()).ToArray()).ToJsonString(indented));

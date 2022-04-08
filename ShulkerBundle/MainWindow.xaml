@@ -12,7 +12,7 @@
         <Style x:Key = "WorldVisibility" TargetType = "Grid">
             <Setter Property = "Visibility" Value = "Visible" />
             <Style.Triggers>
-                <DataTrigger Binding = "{Binding}" Value="{x:Null}">
+                <DataTrigger Binding = "{Binding SelectedWorld}" Value="{x:Null}">
                     <Setter Property = "Visibility" Value = "Hidden" />
                 </DataTrigger>
             </Style.Triggers>
@@ -62,9 +62,6 @@
         </Grid>
         <Grid Grid.Column="1"
               Style="{StaticResource WorldVisibility}">
-            <Grid.DataContext>
-                <viewmodel:WorldViewModel/>
-            </Grid.DataContext>
             <Grid.RowDefinitions>
                 <RowDefinition Height="80"/>
                 <RowDefinition/>
@@ -75,7 +72,7 @@
                 <Grid HorizontalAlignment="Stretch"
                       Margin="8">
                     <StackPanel>
-                        <TextBlock Text="{Binding World.WorldName}"
+                        <TextBlock Text="{Binding SelectedWorld.WorldName}"
                                    Foreground="Black"
                                    FontWeight="Bold"
                                    FontSize="14"
@@ -107,8 +104,7 @@
                         <ColumnDefinition/>
                         <ColumnDefinition/>
                     </Grid.ColumnDefinitions>
-                    <ListView x:Name="EquippedBPs"
-                              ItemsSource="{Binding ActiveBehaviorPacks}"
+                    <ListView ItemsSource="{Binding ActiveBehaviorPacks}"
                               Background="Transparent"
                               ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                               BorderThickness="0"
@@ -118,8 +114,7 @@
                               dd:DragDrop.IsDragSource="True"
                               dd:DragDrop.IsDropTarget="True"
                               dd:DragDrop.DropHandler="{Binding}"/>
-                    <ListView x:Name="EquippedRPs"
-                              ItemsSource="{Binding ActiveResourcePacks}"
+                    <ListView ItemsSource="{Binding ActiveResourcePacks}"
                               Background="Transparent"
                               ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                               BorderThickness="0"
@@ -136,8 +131,7 @@
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <ListView x:Name="AvailableBPs"
-                          ItemsSource="{Binding AvailableBehaviorPacks}"
+                <ListView ItemsSource="{Binding AvailableBehaviorPacks}"
                           Background="Transparent"
                           ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                           BorderThickness="0"
@@ -147,8 +141,7 @@
                           dd:DragDrop.IsDragSource="True"
                           dd:DragDrop.IsDropTarget="True"
                           dd:DragDrop.DropHandler="{Binding}"/>
-                <ListView x:Name="AvailableRPs"
-                          ItemsSource="{Binding AvailableResourcePacks}"
+                <ListView ItemsSource="{Binding AvailableResourcePacks}"
                           Background="Transparent"
                           ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                           BorderThickness="0"
