@@ -53,7 +53,7 @@ class MainViewModel : ObservableObject, IDropTarget
         }
     }
 
-    public bool CanUnbundle => ActiveBehaviorPacks != null && ActiveResourcePacks != null && ActiveBehaviorPacks.Concat(ActiveResourcePacks).Any(x => x.Status == ReferenceStatus.Dev);
+    public bool CanUnbundle => ActiveBehaviorPacks != null && ActiveResourcePacks != null && ActiveBehaviorPacks.Concat(ActiveResourcePacks).Any(x => x.Status == ReferenceStatus.Local);
     public ObservableCollection<ReferencedPack> AvailableBehaviorPacks { get => availableBehaviorPacks; private set { availableBehaviorPacks = value; OnPropertyChanged(); } }
     public ObservableCollection<ReferencedPack> AvailableResourcePacks { get => availableResourcePacks; private set { availableResourcePacks = value; OnPropertyChanged(); } }
     public ObservableCollection<ReferencedPack> ActiveBehaviorPacks

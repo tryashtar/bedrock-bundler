@@ -74,6 +74,8 @@ public class Pack
 
     public static IEnumerable<Pack> Load(string folder)
     {
+        if (!Directory.Exists(folder))
+            yield break;
         foreach (var pack in Directory.GetDirectories(folder))
         {
             if (File.Exists(Path.Combine(pack, "manifest.json")))

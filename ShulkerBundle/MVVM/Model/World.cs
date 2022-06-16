@@ -28,14 +28,28 @@ public class World : ObservableObject, IPackSource
         Minecraft = mc;
         Folder = folder;
         WorldName = File.ReadAllText(Path.Combine(folder, "levelname.txt"));
-        LocalBehaviorPacks = new(Pack.Load(Path.Combine(folder, "behavior_packs")));
-        LocalResourcePacks = new(Pack.Load(Path.Combine(folder, "resource_packs")));
-        using var bpf = File.OpenRead(Path.Combine(folder, "world_behavior_packs.json"));
-        using var bpm = JsonDocument.Parse(bpf);
-        ActiveBehaviorPacks = new(bpm.RootElement.EnumerateArray().Select(PackReference.ParseReference));
-        using var rpf = File.OpenRead(Path.Combine(folder, "world_resource_packs.json"));
-        using var rpm = JsonDocument.Parse(rpf);
-        ActiveResourcePacks = new(rpm.RootElement.EnumerateArray().Select(PackReference.ParseReference));
+        string bp = Path.Combine(folder, "behavior_packs");
+        string rp = Path.Combine(folder, "resource_packs");
+        LocalBehaviorPacks = new(Pack.Load(bp));
+        LocalResourcePacks = new(Pack.Load(rp));
+        string wbp = Path.Combine(folder, "world_behavior_packs.json");
+        string wrp = Path.Combine(folder, "world_resource_packs.json");
+        if (File.Exists(wbp))
+        {
+            using var bpf = File.OpenRead(wbp);
+            using var bpm = JsonDocument.Parse(bpf);
+            ActiveBehaviorPacks = new(bpm.RootElement.EnumerateArray().Select(PackReference.ParseReference));
+        }
+        else
+            ActiveBehaviorPacks = new();
+        if (File.Exists(wrp))
+        {
+            using var rpf = File.OpenRead(wrp);
+            using var rpm = JsonDocument.Parse(rpf);
+            ActiveResourcePacks = new(rpm.RootElement.EnumerateArray().Select(PackReference.ParseReference));
+        }
+        else
+            ActiveResourcePacks = new();
         ActiveBehaviorPacks.CollectionChanged += (s, e) => UpdatePacks();
         ActiveResourcePacks.CollectionChanged += (s, e) => UpdatePacks();
     }
