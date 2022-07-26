@@ -18,6 +18,8 @@ class MainViewModel : ObservableObject, IDropTarget
     private ObservableCollection<ReferencedPack> availableResourcePacks;
     private ObservableCollection<ReferencedPack> activeBehaviorPacks;
     private ObservableCollection<ReferencedPack> activeResourcePacks;
+    private ObservableCollection<Structure> packStructures;
+    private ObservableCollection<Structure> embeddedStructures;
 
     public Minecraft Minecraft
     {
@@ -50,12 +52,16 @@ class MainViewModel : ObservableObject, IDropTarget
             }
             AvailableBehaviorPacks = new(bps);
             AvailableResourcePacks = new(rps);
+            PackStructures = new();
+            UpdateStructures();
+            EmbeddedStructures = new(selectedworld.EmbeddedStructures);
         }
     }
 
     public bool CanUnbundle => ActiveBehaviorPacks != null && ActiveResourcePacks != null && ActiveBehaviorPacks.Concat(ActiveResourcePacks).Any(x => x.Status == ReferenceStatus.Local);
     public ObservableCollection<ReferencedPack> AvailableBehaviorPacks { get => availableBehaviorPacks; private set { availableBehaviorPacks = value; OnPropertyChanged(); } }
     public ObservableCollection<ReferencedPack> AvailableResourcePacks { get => availableResourcePacks; private set { availableResourcePacks = value; OnPropertyChanged(); } }
+    public ObservableCollection<Structure> PackStructures { get => packStructures; private set { packStructures = value; OnPropertyChanged(); } }
     public ObservableCollection<ReferencedPack> ActiveBehaviorPacks
     {
         get => activeBehaviorPacks;
@@ -84,6 +90,19 @@ class MainViewModel : ObservableObject, IDropTarget
         }
     }
 
+    public ObservableCollection<Structure> EmbeddedStructures
+    {
+        get => embeddedStructures;
+        private set
+        {
+            if (embeddedStructures != null)
+                embeddedStructures.CollectionChanged -= EmbeddedStructures_CollectionChanged;
+            embeddedStructures = value;
+            embeddedStructures.CollectionChanged += EmbeddedStructures_CollectionChanged;
+            OnPropertyChanged();
+        }
+    }
+
     private void ActiveBehaviorPacks_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         OnPropertyChanged(nameof(CanUnbundle));
@@ -91,6 +110,16 @@ class MainViewModel : ObservableObject, IDropTarget
         foreach (var item in ActiveBehaviorPacks)
         {
             SelectedWorld.ActiveBehaviorPacks.Add(item.Reference);
+        }
+        UpdateStructures();
+    }
+
+    private void UpdateStructures()
+    {
+        PackStructures.Clear();
+        foreach (var item in ActiveBehaviorPacks.SelectMany(x => x.Pack.Structures))
+        {
+            PackStructures.Add(item);
         }
     }
 
@@ -101,6 +130,15 @@ class MainViewModel : ObservableObject, IDropTarget
         foreach (var item in ActiveResourcePacks)
         {
             SelectedWorld.ActiveResourcePacks.Add(item.Reference);
+        }
+    }
+
+    private void EmbeddedStructures_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
+    {
+        SelectedWorld.EmbeddedStructures.Clear();
+        foreach (var item in EmbeddedStructures)
+        {
+            SelectedWorld.EmbeddedStructures.Add(item);
         }
     }
 
@@ -125,48 +163,66 @@ class MainViewModel : ObservableObject, IDropTarget
         GetDropAction(dropInfo)();
     }
 
+    private (T moving, ObservableCollection<T> from, ObservableCollection<T> to) CastDrop<T>(IDropInfo info) where T : class
+    {
+        return (info.Data as T, info.DragInfo.SourceCollection as ObservableCollection<T>, info.TargetCollection as ObservableCollection<T>);
+    }
+
     private Action GetDropAction(IDropInfo info)
     {
-        var moving = info.Data as ReferencedPack;
-        var from = info.DragInfo.SourceCollection as ObservableCollection<ReferencedPack>;
-        var to = info.TargetCollection as ObservableCollection<ReferencedPack>;
-        // equip pack
-        if ((from == AvailableBehaviorPacks && to == ActiveBehaviorPacks) || (from == AvailableResourcePacks && to == ActiveResourcePacks))
         {
-            info.Effects = DragDropEffects.Move;
-            info.DropTargetAdorner = DropTargetAdorners.Insert;
-            return () =>
+            var (moving, from, to) = CastDrop<ReferencedPack>(info);
+            // equip pack
+            if ((from == AvailableBehaviorPacks && to == ActiveBehaviorPacks) || (from == AvailableResourcePacks && to == ActiveResourcePacks))
             {
-                from.Remove(moving);
-                to.Insert(info.InsertIndex, moving);
-            };
-        }
-        // reorder pack
-        if (to == from)
-        {
-            info.Effects = DragDropEffects.Move;
-            if (to == ActiveBehaviorPacks || to == ActiveResourcePacks)
-            {
+                info.Effects = DragDropEffects.Move;
                 info.DropTargetAdorner = DropTargetAdorners.Insert;
                 return () =>
                 {
+                    from.Remove(moving);
+                    to.Insert(info.InsertIndex, moving);
+                };
+            }
+            // reorder pack
+            if (to == from)
+            {
+                info.Effects = DragDropEffects.Move;
+                if (to == ActiveBehaviorPacks || to == ActiveResourcePacks)
+                {
+                    info.DropTargetAdorner = DropTargetAdorners.Insert;
+                    return () =>
+                    {
+                        from.RemoveAt(info.DragInfo.SourceIndex);
+                        int index = info.InsertIndex;
+                        if (index > info.DragInfo.SourceIndex)
+                            index--;
+                        from.Insert(index, moving);
+                    };
+                }
+            }
+            // remove pack
+            if ((from == ActiveBehaviorPacks && to == AvailableBehaviorPacks) || (from == ActiveResourcePacks && to == AvailableResourcePacks))
+            {
+                info.Effects = DragDropEffects.Move;
+                return () =>
+                {
                     from.RemoveAt(info.DragInfo.SourceIndex);
-                    int index = info.InsertIndex;
-                    if (index > info.DragInfo.SourceIndex)
-                        index--;
-                    from.Insert(index, moving);
+                    to.Insert(0, moving);
                 };
             }
         }
-        // remove pack
-        if ((from == ActiveBehaviorPacks && to == AvailableBehaviorPacks) || (from == ActiveResourcePacks && to == AvailableResourcePacks))
         {
-            info.Effects = DragDropEffects.Move;
-            return () =>
+            var (moving, from, to) = CastDrop<Structure>(info);
+            // embed/remove structure
+            if ((from == PackStructures && to == EmbeddedStructures) || (from == EmbeddedStructures && to == PackStructures))
             {
-                from.RemoveAt(info.DragInfo.SourceIndex);
-                to.Insert(0, moving);
-            };
+                info.Effects = DragDropEffects.Move;
+                return () =>
+                {
+                    from.RemoveAt(info.DragInfo.SourceIndex);
+                    to.Insert(0, moving);
+                };
+            }
         }
         return () => { };
     }

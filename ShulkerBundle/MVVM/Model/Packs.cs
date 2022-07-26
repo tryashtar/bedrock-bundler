@@ -10,11 +10,11 @@ using System.Threading.Tasks;
 
 namespace ShulkerBundle;
 
-public class Pack
+public class Pack : IStructureSource
 {
-    public string Name { get; private set; }
-    public string Description { get; private set; }
-    public string PackIcon
+    public string Name { get; }
+    public string Description { get; }
+    public string? PackIcon
     {
         get
         {
@@ -25,12 +25,13 @@ public class Pack
         }
     }
     public string FolderName => Path.GetFileName(Folder);
-    public string BundleName { get; private set; }
+    public string BundleName { get; }
     public readonly string Folder;
     public readonly Version Version;
     public readonly Version MinEngineVersion;
-    public Guid UUID { get; private set; }
+    public Guid UUID { get; }
     public readonly List<PackReference> Dependencies;
+    public List<Structure> Structures { get; }
     public Pack(string folder)
     {
         Folder = folder;
@@ -38,10 +39,10 @@ public class Pack
         using var manifest = JsonDocument.Parse(file);
         var header = manifest.RootElement.GetProperty("header");
         Version = new Version(header.GetProperty("version"));
-        string name = header.GetProperty("name").GetString();
-        string desc = header.GetProperty("description").GetString();
-        Name = name;
-        Description = desc;
+        string raw_name = header.GetProperty("name").GetString();
+        string raw_desc = header.GetProperty("description").GetString();
+        Name = raw_name;
+        Description = raw_desc;
         string lang = Path.Combine(folder, "texts", "en_US.lang");
         if (File.Exists(lang))
         {
@@ -53,9 +54,9 @@ public class Pack
                 int eq = trim.IndexOf('=');
                 if (eq == -1)
                     continue;
-                if (trim[..eq] == name)
+                if (trim[..eq] == raw_name)
                     Name = trim[(eq + 1)..];
-                if (trim[..eq] == desc)
+                if (trim[..eq] == raw_desc)
                     Description = trim[(eq + 1)..];
             }
         }
@@ -68,6 +69,21 @@ public class Pack
         Dependencies = new();
         if (manifest.RootElement.TryGetProperty("dependencies", out var dep))
             Dependencies.AddRange(dep.EnumerateArray().Select(PackReference.ParseDependency));
+        Structures = new();
+        var structures_folder = Path.Combine(folder, "structures");
+        if (Directory.Exists(structures_folder))
+        {
+            foreach (var item in Directory.GetFiles(structures_folder, "*.mcstructure", SearchOption.AllDirectories))
+            {
+                string id = Path.ChangeExtension(item[(structures_folder.Length + 1)..], null).Replace('\\', '/');
+                int first_slash = id.IndexOf('/');
+                if (first_slash == -1)
+                    id = "mystructure:" + id;
+                else
+                    id = id[..first_slash] + ':' + id[(first_slash + 1)..];
+                Structures.Add(new Structure(id));
+            }
+        }
     }
 
     public PackReference GetReference() => new PackReference(UUID, Version);
@@ -82,6 +98,11 @@ public class Pack
                 yield return new Pack(pack);
         }
     }
+
+    public Structure? GetStructure(string identifier)
+    {
+        return Structures.FirstOrDefault(x => x.Identifier == identifier);
+    }
 }
 
 public enum ReferenceStatus
@@ -91,30 +112,10 @@ public enum ReferenceStatus
     Missing
 }
 
-public class ReferencedPack
+public record ReferencedPack(PackReference Reference, Pack? Pack, ReferenceStatus Status);
+
+public record PackReference(Guid UUID, Version Version)
 {
-    public PackReference Reference { get; private set; }
-    public Pack? Pack { get; private set; }
-    public ReferenceStatus Status { get; private set; }
-    public ReferencedPack(PackReference reference, Pack? pack, ReferenceStatus status)
-    {
-        Reference = reference;
-        Pack = pack;
-        Status = status;
-    }
-}
-
-public record PackReference
-{
-    public Guid UUID { get; private set; }
-    public Version Version { get; private set; }
-
-    public PackReference(Guid uuid, Version version)
-    {
-        UUID = uuid;
-        Version = version;
-    }
-
     public JsonObject ToJsonDependency()
     {
         return new JsonObject
@@ -155,19 +156,17 @@ public record PackReference
     }
 }
 
-public record Version
+public record Version(int Major, int Minor, int Patch)
 {
-    public readonly int Major;
-    public readonly int Minor;
-    public readonly int Patch;
-    public Version(JsonElement json)
-    {
-        Major = json[0].GetInt32();
-        Minor = json[1].GetInt32();
-        Patch = json[2].GetInt32();
-    }
+    public Version(JsonElement json) : this(
+        json[0].GetInt32(),
+        json[1].GetInt32(),
+        json[2].GetInt32())
+    { }
     public JsonArray ToJson()
     {
         return new JsonArray(Major, Minor, Patch);
     }
 }
+
+public record Structure(string Identifier);

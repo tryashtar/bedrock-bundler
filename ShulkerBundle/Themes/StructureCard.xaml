@@ -1,0 +1,21 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:converters="clr-namespace:ShulkerBundle.Converters"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Style TargetType="ListViewItem"
+           x:Key="StructureCard">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Grid Background="#EEEEEE"
+                          Margin="2">
+                        <TextBlock Text="{Binding Identifier}"
+                                   Foreground="Black"
+                                   FontWeight="SemiBold"
+                                   VerticalAlignment="Center"
+                                   Margin="4"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+</ResourceDictionary>

@@ -11,17 +11,18 @@ using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
 namespace ShulkerBundle;
-public class World : ObservableObject, IPackSource
+public class World : ObservableObject, IPackSource, IStructureSource
 {
     public readonly Minecraft Minecraft;
-    public string WorldName { get; private set; }
+    public string WorldName { get; }
     public string WorldIcon => Path.Combine(Folder, "world_icon.jpeg");
     public string FolderName => Path.GetFileName(Folder);
     public readonly string Folder;
-    public ObservableCollection<Pack> LocalBehaviorPacks { get; private set; }
-    public ObservableCollection<Pack> LocalResourcePacks { get; private set; }
-    public ObservableCollection<PackReference> ActiveBehaviorPacks { get; private set; }
-    public ObservableCollection<PackReference> ActiveResourcePacks { get; private set; }
+    public ObservableCollection<Pack> LocalBehaviorPacks { get; }
+    public ObservableCollection<Pack> LocalResourcePacks { get; }
+    public ObservableCollection<PackReference> ActiveBehaviorPacks { get; }
+    public ObservableCollection<PackReference> ActiveResourcePacks { get; }
+    public ObservableCollection<Structure> EmbeddedStructures { get; }
 
     public World(Minecraft mc, string folder)
     {
@@ -52,6 +53,7 @@ public class World : ObservableObject, IPackSource
             ActiveResourcePacks = new();
         ActiveBehaviorPacks.CollectionChanged += (s, e) => UpdatePacks();
         ActiveResourcePacks.CollectionChanged += (s, e) => UpdatePacks();
+        EmbeddedStructures = new();
     }
 
     private ReferencedPack FindPack(PackReference reference, Func<IPackSource, PackReference, Pack?> getter)
@@ -168,5 +170,10 @@ public class World : ObservableObject, IPackSource
         var indented = new JsonSerializerOptions() { WriteIndented = true };
         File.WriteAllText(Path.Combine(Folder, "world_behavior_packs.json"), new JsonArray(ActiveBehaviorPacks.Select(x => x.ToJsonReference()).ToArray()).ToJsonString(indented));
         File.WriteAllText(Path.Combine(Folder, "world_resource_packs.json"), new JsonArray(ActiveResourcePacks.Select(x => x.ToJsonReference()).ToArray()).ToJsonString(indented));
+    }
+
+    public Structure? GetStructure(string identifier)
+    {
+        return EmbeddedStructures.FirstOrDefault(x => x.Identifier == identifier);
     }
 }

@@ -8,7 +8,8 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="./Themes/WorldCard.xaml"/>
-                <ResourceDictionary Source="./Themes/PackCard.xaml"/>
+                <ResourceDictionary Source="./Themes/PackCard.xaml" />
+                <ResourceDictionary Source="./Themes/StructureCard.xaml" />
                 <ResourceDictionary Source="./Themes/Icons.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
