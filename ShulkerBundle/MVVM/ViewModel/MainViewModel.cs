@@ -54,7 +54,7 @@ class MainViewModel : ObservableObject, IDropTarget
             AvailableResourcePacks = new(rps);
             PackStructures = new();
             UpdateStructures();
-            EmbeddedStructures = new(selectedworld.EmbeddedStructures);
+            EmbeddedStructures = new(selectedworld.GetEmbeddedStructures());
         }
     }
 
@@ -117,7 +117,7 @@ class MainViewModel : ObservableObject, IDropTarget
     private void UpdateStructures()
     {
         PackStructures.Clear();
-        foreach (var item in ActiveBehaviorPacks.SelectMany(x => x.Pack.Structures))
+        foreach (var item in ActiveBehaviorPacks.SelectMany(x => x.Pack.GetStructures()))
         {
             PackStructures.Add(item);
         }
@@ -135,10 +135,9 @@ class MainViewModel : ObservableObject, IDropTarget
 
     private void EmbeddedStructures_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        SelectedWorld.EmbeddedStructures.Clear();
-        foreach (var item in EmbeddedStructures)
+        foreach (Structure item in e.NewItems)
         {
-            SelectedWorld.EmbeddedStructures.Add(item);
+            SelectedWorld.EmbedStructure(item);
         }
     }
 

@@ -1,4 +1,5 @@
-﻿using ShulkerBundle.Core;
+﻿using LevelDBWrapper;
+using ShulkerBundle.Core;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,7 +12,7 @@ using System.Text.Json.Nodes;
 using System.Threading.Tasks;
 
 namespace ShulkerBundle;
-public class World : ObservableObject, IPackSource, IStructureSource
+public class World : ObservableObject, IPackSource
 {
     public readonly Minecraft Minecraft;
     public string WorldName { get; }
@@ -22,7 +23,6 @@ public class World : ObservableObject, IPackSource, IStructureSource
     public ObservableCollection<Pack> LocalResourcePacks { get; }
     public ObservableCollection<PackReference> ActiveBehaviorPacks { get; }
     public ObservableCollection<PackReference> ActiveResourcePacks { get; }
-    public ObservableCollection<Structure> EmbeddedStructures { get; }
 
     public World(Minecraft mc, string folder)
     {
@@ -53,7 +53,29 @@ public class World : ObservableObject, IPackSource, IStructureSource
             ActiveResourcePacks = new();
         ActiveBehaviorPacks.CollectionChanged += (s, e) => UpdatePacks();
         ActiveResourcePacks.CollectionChanged += (s, e) => UpdatePacks();
-        EmbeddedStructures = new();
+    }
+
+    const string StructureKeyword = "structuretemplate_";
+    public IEnumerable<Structure> GetEmbeddedStructures()
+    {
+        using var ldb = new LevelDB(Path.Combine(Folder, "db"));
+        using var iterator = ldb.CreateIterator();
+        iterator.Seek(StructureKeyword);
+        while (iterator.IsValid())
+        {
+            var name = iterator.StringKey();
+            if (name.StartsWith(StructureKeyword))
+                yield return new Structure(name[StructureKeyword.Length..], iterator.Value());
+            else
+                break;
+            iterator.Next();
+        }
+    }
+
+    public void EmbedStructure(Structure structure)
+    {
+        using var ldb = new LevelDB(Path.Combine(Folder, "db"));
+        ldb.Put(StructureKeyword + structure.Identifier, structure.Data);
     }
 
     private ReferencedPack FindPack(PackReference reference, Func<IPackSource, PackReference, Pack?> getter)
@@ -170,10 +192,5 @@ public class World : ObservableObject, IPackSource, IStructureSource
         var indented = new JsonSerializerOptions() { WriteIndented = true };
         File.WriteAllText(Path.Combine(Folder, "world_behavior_packs.json"), new JsonArray(ActiveBehaviorPacks.Select(x => x.ToJsonReference()).ToArray()).ToJsonString(indented));
         File.WriteAllText(Path.Combine(Folder, "world_resource_packs.json"), new JsonArray(ActiveResourcePacks.Select(x => x.ToJsonReference()).ToArray()).ToJsonString(indented));
-    }
-
-    public Structure? GetStructure(string identifier)
-    {
-        return EmbeddedStructures.FirstOrDefault(x => x.Identifier == identifier);
     }
 }

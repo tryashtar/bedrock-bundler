@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace ShulkerBundle;
 
-public class Pack : IStructureSource
+public class Pack
 {
     public string Name { get; }
     public string Description { get; }
@@ -31,7 +31,6 @@ public class Pack : IStructureSource
     public readonly Version MinEngineVersion;
     public Guid UUID { get; }
     public readonly List<PackReference> Dependencies;
-    public List<Structure> Structures { get; }
     public Pack(string folder)
     {
         Folder = folder;
@@ -69,8 +68,11 @@ public class Pack : IStructureSource
         Dependencies = new();
         if (manifest.RootElement.TryGetProperty("dependencies", out var dep))
             Dependencies.AddRange(dep.EnumerateArray().Select(PackReference.ParseDependency));
-        Structures = new();
-        var structures_folder = Path.Combine(folder, "structures");
+    }
+
+    public IEnumerable<Structure> GetStructures()
+    {
+        var structures_folder = Path.Combine(Folder, "structures");
         if (Directory.Exists(structures_folder))
         {
             foreach (var item in Directory.GetFiles(structures_folder, "*.mcstructure", SearchOption.AllDirectories))
@@ -81,7 +83,7 @@ public class Pack : IStructureSource
                     id = "mystructure:" + id;
                 else
                     id = id[..first_slash] + ':' + id[(first_slash + 1)..];
-                Structures.Add(new Structure(id));
+                yield return new Structure(id, File.ReadAllBytes(item));
             }
         }
     }
@@ -97,11 +99,6 @@ public class Pack : IStructureSource
             if (File.Exists(Path.Combine(pack, "manifest.json")))
                 yield return new Pack(pack);
         }
-    }
-
-    public Structure? GetStructure(string identifier)
-    {
-        return Structures.FirstOrDefault(x => x.Identifier == identifier);
     }
 }
 
@@ -169,4 +166,4 @@ public record Version(int Major, int Minor, int Patch)
     }
 }
 
-public record Structure(string Identifier);
+public record Structure(string Identifier, byte[] Data);

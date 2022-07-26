@@ -44,8 +44,3 @@ public interface IPackSource
         return null;
     }
 }
-
-public interface IStructureSource
-{
-    Structure? GetStructure(string identifier);
-}
