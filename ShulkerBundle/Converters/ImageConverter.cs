@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,6 +17,8 @@ public class ImageConverter : GenericConverter<string, ImageSource>
     public override ImageSource Convert(string value)
     {
         if (value == null)
+            return null;
+        if (!File.Exists(value))
             return null;
         return BitmapFrame.Create(new Uri(value), BitmapCreateOptions.IgnoreImageCache, BitmapCacheOption.OnLoad);
     }
